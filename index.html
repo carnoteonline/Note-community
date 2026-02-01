@@ -3,431 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarNote Online | ตลาดรถมือสองพรีเมียม</title>
+    <title>CarNote Online | ตลาดรถมือสองคุณภาพ</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary-dark: #1f2937; /* Dark Blue-Gray */
-            --secondary-dark: #374151; /* Slightly lighter dark */
-            --accent-orange: #f97316; /* Bright Orange */
-            --text-light: #e5e7eb; /* Light gray text */
-            --text-dark: #111827; /* Very dark text */
-            --bg-light: #f9fafb; /* Off-white background */
-            --border-color: #e5e7eb;
-            --success: #22c55e;
-            --danger: #ef4444;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding-bottom: 50px;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-        }
-
-        /* --- Navigation Bar --- */
-        nav {
-            background-color: var(--primary-dark);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        nav h1 {
-            margin: 0;
-            font-size: 1.6rem;
-            letter-spacing: -0.5px;
-            color: var(--accent-orange);
-            font-weight: 800;
-        }
-        .nav-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-light);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .nav-btn:hover {
-            background-color: var(--accent-orange);
-            border-color: var(--accent-orange);
-            transform: translateY(-2px);
-        }
-        .nav-btn.logout {
-            background-color: var(--danger);
-            border-color: var(--danger);
-        }
-        .nav-btn.logout:hover {
-            background-color: #dc2626;
-            border-color: #dc2626;
-        }
-
-        .container {
-            width: 92%;
-            max-width: 800px;
-            margin: 30px auto;
-        }
-
-        /* --- Admin Panel --- */
-        #adminPanel {
-            background-color: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 40px;
-            display: none;
-            border: 2px solid var(--accent-orange);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        }
-        #adminPanel h3 {
-            margin-top: 0;
-            font-size: 1.5rem;
-            color: var(--primary-dark);
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
-        input[type="text"], select {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            color: var(--text-dark);
-            background-color: var(--bg-light);
-            transition: border-color 0.3s ease;
-        }
-        input[type="text"]:focus, select:focus {
-            border-color: var(--accent-orange);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
-        }
-
-        /* Custom File Input Styling */
-        .file-upload-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        .file-label {
-            display: block;
-            padding: 14px 20px;
-            background-color: var(--bg-light);
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            color: var(--gray);
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .file-label:hover {
-            background-color: #e2e8f0;
-            border-color: var(--accent-orange);
-        }
-        input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
-        #imagePreview {
-            width: 100%;
-            height: 180px;
-            object-fit: contain;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin-top: 10px;
-            display: none; /* Hide by default */
-        }
-        #progressText {
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--accent-orange);
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        .btn-action {
-            width: 100%;
-            background-color: var(--accent-orange);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        .btn-action:hover {
-            background-color: #ea580c;
-            transform: translateY(-2px);
-        }
-        .btn-action:disabled {
-            background-color: #cbd5e1;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* --- Car Card Layout --- */
-        .car-card {
-            background-color: white;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 40px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-            position: relative;
-            transition: transform 0.3s ease;
-        }
-        .car-card:hover {
-            transform: translateY(-8px);
-        }
-        .status-tag {
-            position: absolute;
-            top: 18px;
-            left: 18px;
-            padding: 8px 18px;
-            border-radius: 50px;
-            color: white;
-            font-size: 0.85rem;
-            font-weight: 600;
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .tag-available { background-color: var(--success); }
-        .tag-sold { background-color: var(--danger); }
+        :root { --accent: #f97316; --dark: #0f172a; --bg: #f8fafc; --success: #22c55e; --danger: #ef4444; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--dark); padding-bottom: 50px; }
         
-        .car-img {
-            width: 100%;
-            height: 320px;
-            object-fit: cover;
-            background-color: #eee;
-        }
-        .car-details {
-            padding: 25px;
-        }
-        .car-details h2 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: var(--primary-dark);
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        .price-tag {
-            font-size: 2.2rem;
-            color: var(--accent-orange);
-            font-weight: 800;
-            margin: 10px 0 15px 0;
-            letter-spacing: -1px;
-        }
-        .admin-options {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px dashed var(--border-color);
-        }
-        .btn-delete-post {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        .btn-delete-post:hover {
-            background-color: #dc2626;
-        }
+        /* Navbar */
+        nav { background: var(--dark); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        nav h1 { margin: 0; color: var(--accent); font-size: 1.4rem; }
+        .admin-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .admin-btn:hover { background: var(--accent); }
+        .admin-btn.active { background: var(--danger); }
 
-        /* --- Comment Section --- */
-        .comment-section {
-            background-color: var(--bg-light);
-            padding: 20px;
-            border-top: 1px solid var(--border-color);
-            border-radius: 0 0 20px 20px;
-        }
-        .comment-input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .comment-input-group input {
-            flex-grow: 1;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            background-color: white;
-        }
-        .comment-input-group button {
-            background-color: var(--primary-dark);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        .comment-input-group button:hover {
-            background-color: var(--secondary-dark);
-        }
-        .comment-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 20px;
-        }
-        .comment-item {
-            background-color: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            border-left: 4px solid var(--accent-orange);
-            font-size: 0.9rem;
-        }
-        .comment-item strong {
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-        .comment-item span {
-            color: var(--gray);
-            font-size: 0.85rem;
-            margin-left: 8px;
-        }
-        .comment-text {
-            display: block;
-            margin-top: 8px;
-            color: var(--text-dark);
-        }
-        .btn-delete-comment {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            margin-left: 10px;
-            transition: background-color 0.3s ease;
-        }
-        .btn-delete-comment:hover {
-            background-color: #dc2626;
-        }
+        .container { width: 92%; max-width: 700px; margin: 30px auto; }
+
+        /* Admin Panel */
+        #adminPanel { background: white; padding: 25px; border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 30px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        .file-label { display: block; padding: 15px; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; }
+        .btn-post { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        .btn-post:disabled { background: #cbd5e1; cursor: wait; }
+
+        /* Car Card */
+        .car-card { background: white; border-radius: 20px; overflow: hidden; margin-bottom: 35px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: relative; }
+        .status-tag { position: absolute; top: 15px; left: 15px; padding: 6px 15px; border-radius: 50px; color: white; font-size: 0.75rem; font-weight: bold; z-index: 10; }
+        .tag-available { background: var(--success); }
+        .tag-sold { background: var(--danger); }
+        .car-img { width: 100%; height: 320px; object-fit: cover; background: #eee; }
+        .details { padding: 20px; }
+        .price { font-size: 2rem; color: var(--accent); font-weight: 800; margin: 10px 0; }
         
-        /* Responsive Adjustments */
-        @media (max-width: 600px) {
-            nav {
-                padding: 10px 3%;
-            }
-            nav h1 {
-                font-size: 1.4rem;
-            }
-            .nav-btn {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
-            .container {
-                width: 95%;
-                margin: 20px auto;
-            }
-            #adminPanel, .car-card {
-                padding: 20px;
-                border-radius: 15px;
-            }
-            #adminPanel h3 {
-                font-size: 1.3rem;
-            }
-            .car-img {
-                height: 250px;
-            }
-            .car-details h2 {
-                font-size: 1.5rem;
-            }
-            .price-tag {
-                font-size: 1.8rem;
-            }
-            .comment-section {
-                padding: 15px;
-            }
-            .comment-item {
-                padding: 12px;
-                font-size: 0.85rem;
-            }
-        }
+        /* Comments */
+        .comment-box { background: #f8fafc; padding: 15px; border-top: 1px solid #eee; }
+        .comment-item { background: white; padding: 10px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid var(--accent); font-size: 0.9rem; }
+        .del-btn { color: var(--danger); border: none; background: none; font-size: 0.75rem; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <nav>
     <h1>CARNOTE ONLINE</h1>
-    <button id="adminBtn" class="nav-btn" onclick="handleAdmin()">⚙️ แอดมิน</button>
+    <button id="adminBtn" class="admin-btn" onclick="handleAdmin()">⚙️ แอดมิน</button>
 </nav>
 
 <div class="container">
     <div id="adminPanel">
-        <h3>✨ ลงประกาศขายรถ (Admin Panel)</h3>
+        <h3 style="margin-top:0">✨ ลงประกาศใหม่</h3>
+        <div class="form-group"><input type="text" id="carTitle" placeholder="ชื่อรุ่นรถ / ปี"></div>
+        <div class="form-group"><input type="text" id="carPrice" placeholder="ราคา (บาท)"></div>
         <div class="form-group">
-            <input type="text" id="carTitle" placeholder="ชื่อรุ่นรถ / ปี (เช่น Honda Civic 2023)">
+            <label for="carFile" class="file-label" id="fileLabel">📁 เลือกรูปจากเครื่อง (ขนาดเท่าไหร่ก็ได้)</label>
+            <input type="file" id="carFile" accept="image/*" style="display:none" onchange="updateLabel()">
         </div>
-        <div class="form-group">
-            <input type="text" id="carPrice" placeholder="ราคาสุทธิ (เช่น 590,000)">
-        </div>
-        
-        <div class="form-group">
-            <div class="file-upload-wrapper">
-                <label for="carFile" class="file-label" id="fileLabel">
-                    📁 คลิกเพื่อเลือกรูปภาพจากเครื่อง
-                </label>
-                <input type="file" id="carFile" accept="image/*" onchange="updateLabelAndPreview()">
-            </div>
-            <img id="imagePreview" src="#" alt="Image Preview">
-        </div>
-
         <div class="form-group">
             <select id="carStatus">
                 <option value="available">🟢 ยังมีอยู่</option>
                 <option value="sold">🔴 ปิดการขาย</option>
             </select>
         </div>
-        <button id="uploadBtn" class="btn-action" onclick="startUpload()">🚀 อัปโหลดและลงประกาศ</button>
-        <p id="progressText"></p>
+        <button id="uploadBtn" class="btn-post" onclick="startUpload()">อัปโหลดและประกาศขาย</button>
+        <p id="progressText" style="text-align:center; color:var(--accent); font-size:0.8rem;"></p>
     </div>
 
-    <div id="carList">
-        <p style="text-align: center; color: var(--gray); margin-top: 50px; font-size: 1.1rem;">กำลังโหลดรถยนต์มือสองคุณภาพ...</p>
-    </div>
+    <div id="carList"></div>
 </div>
 
 <script>
-    // Firebase Config ของคุณภูผา
+    // Config Firebase ของคุณภูผา
     const firebaseConfig = {
         apiKey: "AIzaSyANA3-UyKf-MS2dcmbAuPGt-KtRd0KTmGw",
         authDomain: "note-communitycar.firebaseapp.com",
         databaseURL: "https://note-communitycar-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "note-communitycar",
-        storageBucket: "note-communitycar.appspot.com", 
+        storageBucket: "note-communitycar.appspot.com",
         messagingSenderId: "387457886547",
         appId: "1:387457886547:web:d7e5f60fb7d2cdbf3ed9a6"
     };
@@ -436,250 +92,156 @@
     const db = firebase.database();
     const storage = firebase.storage();
 
-    let isAdmin = false; // สถานะแอดมิน
+    let isAdmin = false;
 
-    // --- ฟังก์ชันสำหรับ Admin Panel ---
+    // ฟังก์ชันล็อกอินแอดมิน
     function handleAdmin() {
         if (!isAdmin) {
-            const pass = prompt("กรุณากรอกรหัสผ่านแอดมิน:");
-            if (pass === "Note#2026!Car@Phupha99") { // รหัสผ่านแอดมิน
+            const pass = prompt("รหัสผ่านแอดมิน:");
+            if (pass === "Note#2026!Car@Phupha99") {
                 isAdmin = true;
                 document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('adminBtn').innerText = "🚪 ล็อกเอาต์";
-                document.getElementById('adminBtn').classList.add('logout');
-                renderCars(); // รีโหลดรถเพื่อแสดงปุ่มแอดมิน
-            } else if(pass !== null) { // ถ้ากด Cancel หรือใส่ผิด
-                alert("รหัสผ่านไม่ถูกต้อง!");
+                document.getElementById('adminBtn').innerText = "🚪 ออกจากระบบ";
+                document.getElementById('adminBtn').classList.add('active');
+                renderCars();
             }
-        } else { // ถ้าเป็น Admin อยู่แล้ว
+        } else {
             isAdmin = false;
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('adminBtn').innerText = "⚙️ แอดมิน";
-            document.getElementById('adminBtn').classList.remove('logout');
-            renderCars(); // รีโหลดรถเพื่อซ่อนปุ่มแอดมิน
+            document.getElementById('adminBtn').classList.remove('active');
+            renderCars();
         }
     }
 
-    // แสดงชื่อไฟล์ที่เลือกและพรีวิวรูปภาพ
-    function updateLabelAndPreview() {
-        const fileInput = document.getElementById('carFile');
-        const fileLabel = document.getElementById('fileLabel');
-        const imagePreview = document.getElementById('imagePreview');
-        const file = fileInput.files[0];
+    function updateLabel() {
+        const file = document.getElementById('carFile').files[0];
+        if(file) document.getElementById('fileLabel').innerText = "✅ เลือกแล้ว: " + file.name;
+    }
 
-        if (file) {
-            fileLabel.innerText = `✅ เลือกรูป: ${file.name}`;
+    // --- ฟังก์ชันย่อรูปภาพเพื่อกันค้าง ---
+    async function compressImage(file) {
+        return new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-            };
             reader.readAsDataURL(file);
-        } else {
-            fileLabel.innerText = "📁 คลิกเพื่อเลือกรูปภาพจากเครื่อง";
-            imagePreview.style.display = 'none';
-            imagePreview.src = '#';
-        }
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const scale = 1200 / img.width;
+                    canvas.width = 1200;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => {
+                        resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                    }, 'image/jpeg', 0.8);
+                }
+            }
+        });
     }
 
-    // เริ่มอัปโหลดรูปและโพสต์
+    // --- ฟังก์ชันอัปโหลดหลัก ---
     async function startUpload() {
-        const title = document.getElementById('carTitle').value.trim();
-        const price = document.getElementById('carPrice').value.trim();
+        const title = document.getElementById('carTitle').value;
+        const price = document.getElementById('carPrice').value;
         const file = document.getElementById('carFile').files[0];
         const status = document.getElementById('carStatus').value;
-        const uploadBtn = document.getElementById('uploadBtn');
-        const progressText = document.getElementById('progressText');
+        const btn = document.getElementById('uploadBtn');
+        const prog = document.getElementById('progressText');
 
-        if (!title || !price || !file) {
-            alert("กรุณากรอกข้อมูลให้ครบและเลือกรูปภาพครับ!");
-            return;
-        }
+        if(!title || !price || !file) return alert("กรุณากรอกข้อมูลให้ครบครับ");
 
-        uploadBtn.disabled = true;
-        progressText.innerText = "กำลังอัปโหลดรูปภาพ... (อาจใช้เวลาสักครู่)";
+        btn.disabled = true;
+        prog.innerText = "กำลังประมวลผลรูปภาพและอัปโหลดไปยัง Cloud...";
 
         try {
-            // 1. อัปโหลดรูปภาพไป Firebase Storage
-            const storageRef = storage.ref(`car_images/${Date.now()}_${file.name}`);
-            const snapshot = await storageRef.put(file);
-            const downloadURL = await snapshot.ref.getDownloadURL();
+            // ย่อรูปก่อนส่ง
+            const smallFile = await compressImage(file);
+            const storageRef = storage.ref(`cars/${Date.now()}_${file.name}`);
+            const snapshot = await storageRef.put(smallFile);
+            const url = await snapshot.ref.getDownloadURL();
 
-            // 2. บันทึกข้อมูลรถลง Realtime Database
-            await db.ref('cars').push({
-                title,
-                price,
-                img: downloadURL,
-                status,
-                createdAt: Date.now()
-            });
-
-            alert("ลงประกาศขายรถเรียบร้อยแล้วครับ!");
-            // ล้างฟอร์ม
-            document.getElementById('carTitle').value = "";
-            document.getElementById('carPrice').value = "";
-            document.getElementById('carFile').value = "";
-            document.getElementById('fileLabel').innerText = "📁 คลิกเพื่อเลือกรูปภาพจากเครื่อง";
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imagePreview').src = '#';
-            progressText.innerText = "";
-            uploadBtn.disabled = false;
-
-        } catch (error) {
-            console.error("เกิดข้อผิดพลาดในการอัปโหลด:", error);
-            alert("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพหรือข้อมูล กรุณาลองใหม่อีกครั้ง");
-            uploadBtn.disabled = false;
-            progressText.innerText = "อัปโหลดไม่สำเร็จ";
+            await db.ref('cars').push({ title, price, img: url, status, time: Date.now() });
+            
+            alert("สำเร็จ!");
+            location.reload();
+        } catch (err) {
+            console.error(err);
+            alert("เกิดข้อผิดพลาด: " + err.message);
+            btn.disabled = false;
         }
     }
 
-    // --- ฟังก์ชันสำหรับแสดงโพสต์รถ ---
     function renderCars() {
         db.ref('cars').on('value', snapshot => {
             const list = document.getElementById('carList');
-            list.innerHTML = ""; // ล้างข้อมูลเก่า
+            list.innerHTML = "";
             const data = snapshot.val();
-
-            if (data) {
-                Object.keys(data).reverse().forEach(key => { // เรียงจากใหม่ไปเก่า
+            if(data) {
+                Object.keys(data).reverse().forEach(key => {
                     const car = data[key];
                     list.innerHTML += `
                         <div class="car-card">
-                            <div class="status-tag ${car.status === 'available' ? 'tag-available' : 'tag-sold'}">
-                                ${car.status === 'available' ? '🟢 ยังมีอยู่' : '🔴 ปิดการขาย'}
+                            <div class="status-tag ${car.status === 'available' ? 'tag-available' : 'tag-sold'}">${car.status === 'available' ? 'ยังมีอยู่' : 'ปิดการขาย'}</div>
+                            <img src="${car.img}" class="car-img">
+                            <div class="details">
+                                <h2 style="margin:0">${car.title}</h2>
+                                <div class="price">฿ ${car.price}</div>
+                                ${isAdmin ? `<button class="del-btn" onclick="deletePost('${key}', '${car.img}')">🗑️ ลบประกาศ</button>` : ''}
                             </div>
-                            <img src="${car.img}" class="car-img" onerror="this.src='https://via.placeholder.com/800x500?text=CarNote+Online'">
-                            <div class="car-details">
-                                <h2>${car.title}</h2>
-                                <div class="price-tag">฿ ${car.price}</div>
-                                ${isAdmin ? `
-                                    <div class="admin-options">
-                                        <button class="btn-delete-post" onclick="deletePost('${key}', '${car.img}')">🗑️ ลบประกาศนี้</button>
-                                        </div>
-                                ` : ''}
-                            </div>
-                            <div class="comment-section">
-                                <h4 style="margin-top:0; color: var(--primary-dark);">💬 ความคิดเห็น</h4>
-                                <ul id="comments-list-${key}" class="comment-list">
-                                    </ul>
-                                <div class="comment-input-group">
-                                    <input type="text" id="username-${key}" placeholder="ชื่อเล่นของคุณ...">
-                                    <input type="text" id="message-${key}" placeholder="พิมพ์ข้อความ...">
-                                    <button onclick="sendComment('${key}')">ส่ง</button>
+                            <div class="comment-box">
+                                <div id="comments-${key}"></div>
+                                <div style="display:flex; gap:10px; margin-top:10px">
+                                    <input type="text" id="user-${key}" placeholder="ชื่อ" style="width:30%" value="${localStorage.getItem('user') || ''}">
+                                    <input type="text" id="msg-${key}" placeholder="ถามข้อมูล..." style="flex:1">
+                                    <button onclick="sendComment('${key}')" style="background:var(--dark); color:white; border:none; padding:5px 15px; border-radius:8px; cursor:pointer">ส่ง</button>
                                 </div>
                             </div>
                         </div>
                     `;
-                    // ดึงคอมเมนต์ของโพสต์นี้
-                    renderComments(key); 
+                    renderComments(key);
                 });
-            } else {
-                list.innerHTML = `<p style="text-align: center; color: var(--gray); margin-top: 50px; font-size: 1.1rem;">ยังไม่มีรถลงประกาศเลยครับ</p>`;
             }
         });
     }
 
-    // --- ฟังก์ชันสำหรับคอมเมนต์ ---
-    // จำชื่อผู้ใช้ในเครื่อง (LocalStorage)
-    window.onload = function() {
-        const savedName = localStorage.getItem('carnote_user');
-        if (savedName) {
-            // ไม่ต้องใส่ใน input ทันที เพราะแต่ละโพสต์มี input ของตัวเอง
-            // แต่จะใช้ค่านี้ตอนส่งคอมเมนต์
-        }
-        renderCars(); // เริ่มโหลดรถเมื่อหน้าเว็บโหลดเสร็จ
-    };
-
-    function sendComment(carId) {
-        const usernameInput = document.getElementById(`username-${carId}`);
-        const messageInput = document.getElementById(`message-${carId}`);
-        const name = usernameInput.value.trim();
-        const msg = messageInput.value.trim();
-
-        if (name && msg) {
-            localStorage.setItem('carnote_user', name); // บันทึกชื่อ
-            db.ref(`comments/${carId}`).push({
-                username: name,
-                message: msg,
-                timestamp: Date.now()
-            });
-            messageInput.value = ""; // ล้างช่องข้อความ
-            // ทำให้ชื่อผู้ใช้ยังคงอยู่ในช่อง
-            // usernameInput.value = name; // อันนี้คือถ้าอยากให้ชื่อค้าง
-        } else {
-            alert("กรุณาใส่ชื่อและข้อความให้ครบครับ");
+    function sendComment(id) {
+        const u = document.getElementById(`user-${id}`).value;
+        const m = document.getElementById(`msg-${id}`).value;
+        if(u && m) {
+            localStorage.setItem('user', u);
+            db.ref(`comments/${id}`).push({ u, m, t: Date.now() });
+            document.getElementById(`msg-${id}`).value = "";
         }
     }
 
-    function renderComments(carId) {
-        db.ref(`comments/${carId}`).on('value', snapshot => {
-            const commentList = document.getElementById(`comments-list-${carId}`);
-            if (!commentList) return; // ป้องกัน error ถ้า element ยังไม่ถูกสร้าง
-            commentList.innerHTML = "";
+    function renderComments(id) {
+        db.ref(`comments/${id}`).on('value', snapshot => {
+            const box = document.getElementById(`comments-${id}`);
+            if(!box) return; box.innerHTML = "";
             const data = snapshot.val();
-            if (data) {
-                // แสดงคอมเมนต์จากใหม่ไปเก่า
-                Object.values(data).reverse().forEach(comment => {
-                    const li = document.createElement('li');
-                    li.className = 'comment-item';
-                    const time = new Date(comment.timestamp).toLocaleString('th-TH', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
-                    li.innerHTML = `
-                        <strong>${comment.username}</strong> <span>${time}</span>
-                        <p class="comment-text">${comment.message}</p>
-                        ${isAdmin ? `<button class="btn-delete-comment" onclick="deleteComment('${carId}', '${comment.key}')">ลบ</button>` : ''}
-                    `;
-                    commentList.appendChild(li);
+            if(data) {
+                Object.keys(data).forEach(ck => {
+                    const c = data[ck];
+                    box.innerHTML += `<div class="comment-item"><b>${c.u}:</b> ${c.m} ${isAdmin ? `<button class="del-btn" onclick="deleteComment('${id}','${ck}')">ลบ</button>` : ''}</div>`;
                 });
-            } else {
-                commentList.innerHTML = `<li style="font-size:0.85rem; color:var(--gray); text-align:center;">ยังไม่มีความคิดเห็น...</li>`;
-            }
-            // ใส่ชื่อผู้ใช้ที่จำได้ลงในช่อง input (ถ้ามี)
-            const usernameInput = document.getElementById(`username-${carId}`);
-            const savedName = localStorage.getItem('carnote_user');
-            if(usernameInput && savedName) {
-                usernameInput.value = savedName;
             }
         });
     }
 
-    // --- ฟังก์ชันลบข้อมูล (Admin Only) ---
-    async function deletePost(carId, imgUrl) {
-        if (!isAdmin) { alert("คุณไม่มีสิทธิ์ลบโพสต์นี้"); return; }
-        if (confirm("คุณแน่ใจหรือไม่ที่จะลบประกาศรถคันนี้และรูปภาพถาวร?")) {
-            try {
-                // 1. ลบรูปภาพจาก Firebase Storage
-                if (imgUrl) {
-                    const imgRef = storage.refFromURL(imgUrl);
-                    await imgRef.delete();
-                }
-                // 2. ลบข้อมูลรถจาก Realtime Database
-                await db.ref(`cars/${carId}`).remove();
-                // 3. ลบคอมเมนต์ที่เกี่ยวข้อง
-                await db.ref(`comments/${carId}`).remove();
-
-                alert("ลบประกาศและรูปภาพเรียบร้อยแล้วครับ!");
-            } catch (error) {
-                console.error("Error deleting post:", error);
-                alert("เกิดข้อผิดพลาดในการลบประกาศ ลองใหม่อีกครั้ง");
-            }
+    async function deletePost(id, url) {
+        if(confirm("ลบโพสต์และรูปภาพถาวร?")) {
+            try { await storage.refFromURL(url).delete(); } catch(e) {}
+            await db.ref(`cars/${id}`).remove();
+            await db.ref(`comments/${id}`).remove();
         }
     }
 
-    async function deleteComment(carId, commentKey) {
-        if (!isAdmin) { alert("คุณไม่มีสิทธิ์ลบคอมเมนต์นี้"); return; }
-        if (confirm("คุณแน่ใจหรือไม่ที่จะลบคอมเมนต์นี้?")) {
-            try {
-                await db.ref(`comments/${carId}/${commentKey}`).remove();
-                alert("ลบคอมเมนต์เรียบร้อย!");
-            } catch (error) {
-                console.error("Error deleting comment:", error);
-                alert("เกิดข้อผิดพลาดในการลบคอมเมนต์");
-            }
-        }
-    }
+    function deleteComment(id, ck) { if(confirm("ลบเมนต์?")) db.ref(`comments/${id}/${ck}`).remove(); }
 
-    // เรียกโหลดรถครั้งแรก
-    // renderCars(); ถูกเรียกใน window.onload เพื่อให้มั่นใจว่า DOM พร้อมแล้ว
+    renderCars();
 </script>
 </body>
 </html>
