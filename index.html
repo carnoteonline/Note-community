@@ -1,301 +1,294 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarNote Online | ตลาดรถมือสองคุณภาพ</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+  <title>NoteCar Online | Professional Control</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root { --primary: #ff7a18; --bg: #030509; --glass: rgba(255, 255, 255, 0.04); --glass-border: rgba(255, 255, 255, 0.1); }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Sarabun', sans-serif; }
+    body { margin: 0; background-color: var(--bg); color: #f1f5f9; overflow-x: hidden; }
+
+    /* Header */
+    .nav-header { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: rgba(3, 5, 9, 0.85); backdrop-filter: blur(15px); display: flex; justify-content: space-between; align-items: center; padding: 0 5%; z-index: 2000; border-bottom: 1px solid var(--glass-border); }
+    .brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .brand img { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--primary); }
+    .brand-text { font-family: 'Kanit'; font-weight: 800; font-size: 1.3rem; color: var(--primary); }
+    .nav-tools { display: flex; gap: 12px; align-items: center; }
+    .lang-switcher { background: #1a202c; border: 1px solid var(--glass-border); padding: 3px; border-radius: 10px; display: flex; }
+    .lang-btn { padding: 6px 12px; border-radius: 8px; border: none; background: transparent; color: #718096; cursor: pointer; font-family: 'Kanit'; font-weight: 700; font-size: 0.75rem; }
+    .lang-btn.active { background: var(--primary); color: white; }
     
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    /* Admin Buttons */
+    .admin-icon-btn { background: none; border: none; cursor: pointer; font-size: 1.4rem; transition: 0.3s; }
+    .fingerprint-btn { color: rgba(255,255,255,0.2); }
+    .logout-btn { color: #ef4444; }
 
-    <style>
-        :root {
-            --accent-start: #ff7a18;
-            --accent-end: #fb2e86;
-            --accent: linear-gradient(135deg, #ff7a18, #fb2e86);
-            --dark: #0f172a;
-            --bg: #f8fafc;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text: #1e293b;
-            --muted: #64748b;
-        }
+    /* Layout */
+    .shell { width: 92%; max-width: 1200px; margin: 90px auto 30px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    .car-card { background: var(--glass); border-radius: 28px; border: 1px solid var(--glass-border); overflow: hidden; position: relative; transition: 0.3s; }
+    .car-img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+    .status-tag { position: absolute; top: 12px; left: 12px; padding: 5px 14px; border-radius: 10px; font-size: 0.65rem; font-weight: 800; font-family: 'Kanit'; color: white; z-index: 10; }
 
-        body {
-            font-family: 'Anuphan', 'Inter', sans-serif;
-            margin: 0;
-            background: var(--bg);
-            color: var(--text);
-            -webkit-tap-highlight-color: transparent;
-        }
+    /* Buttons */
+    .btn-texture { border: none; border-radius: 15px; cursor: pointer; font-family: 'Kanit'; font-weight: 700; padding: 12px 20px; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; }
+    .btn-orange { background: linear-gradient(180deg, #ff9d5c 0%, #ff7a18 100%); }
+    .btn-blue { background: #1877f2; }
+    .btn-dark { background: #1f2937; border: 1px solid var(--glass-border); }
+    .btn-red { background: #ef4444; }
 
-        /* Header */
-        nav {
-            background: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-        }
-        .brand h1 { margin: 0; font-size: 1.1rem; color: #ff7a18; font-weight: 700; }
+    /* Comment Area */
+    .comment-card { background: var(--glass); padding: 20px; border-radius: 24px; margin-bottom: 12px; border: 1px solid var(--glass-border); position: relative; }
+    .comment-user { font-family: 'Kanit'; color: var(--primary); font-weight: 700; font-size: 0.9rem; }
+    .comment-location { font-size: 0.65rem; background: rgba(255,255,255,0.08); padding: 3px 10px; border-radius: 8px; color: #94a3b8; margin-left: 8px; }
+    .comment-msg { font-size: 0.95rem; color: #cbd5e1; margin: 10px 0; }
+    .comment-time { font-size: 0.7rem; color: #475569; }
+    .comment-input-box { position: sticky; bottom: 20px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); padding: 12px 20px; border-radius: 20px; border: 1px solid var(--primary); display: flex; gap: 10px; margin-top: 30px; }
+    #commentInput { flex: 1; background: transparent; border: none; color: white; outline: none; }
 
-        /* Banner ที่คุณต้องการให้เป็น Icon.png */
-        .hero-banner {
-            width: 100%; height: 180px;
-            background: linear-gradient(rgba(255, 122, 24, 0.8), rgba(251, 46, 134, 0.8)), url('Icon.png');
-            background-size: cover; background-position: center;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: white; text-align: center;
-        }
-        .hero-banner h2 { font-size: 1.8rem; margin: 0; font-weight: 700; }
-
-        .container { width: 92%; max-width: 500px; margin: 20px auto; }
-
-        /* Card Styles */
-        .car-card {
-            background: white; border-radius: 20px; overflow: hidden; margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
-        }
-        .car-img { width: 100%; height: 250px; object-fit: cover; }
-        .details { padding: 15px; }
-        .price { font-size: 1.5rem; color: #ff7a18; font-weight: 700; margin: 5px 0 15px; }
-
-        /* Buttons */
-        .btn-contact {
-            flex: 1; padding: 12px; border-radius: 12px; text-decoration: none;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-weight: 700; color: white; font-size: 0.9rem;
-        }
-        .btn-facebook { background: #1877F2; }
-        .btn-phone { background: #0f172a; }
-        .btn-post {
-            width: 100%; padding: 14px; border-radius: 12px; border: none;
-            background: var(--accent); color: white; font-weight: 700; cursor: pointer;
-        }
-
-        /* Overlay System */
-        .overlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center;
-            z-index: 2000; padding: 20px;
-        }
-        .modal-card {
-            background: white; padding: 25px; border-radius: 25px; text-align: center;
-            width: 100%; max-width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
-
-        /* Loader */
-        .loader {
-            width: 45px; height: 45px; border: 5px solid #f3f3f3;
-            border-top: 5px solid #ff7a18; border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 0 auto 15px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Comment Style */
-        .comment-section { padding: 15px; background: #fcfdfe; border-top: 1px solid #f1f5f9; }
-        .comment-item { background: white; padding: 8px 12px; border-radius: 10px; margin-bottom: 8px; font-size: 0.85rem; position: relative; border: 1px solid #f1f5f9; }
-
-        input, select {
-            width: 100%; padding: 12px; border: 1.5px solid #f1f5f9; border-radius: 12px;
-            margin-bottom: 10px; box-sizing: border-box; font-family: 'Anuphan';
-        }
-    </style>
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 5000; backdrop-filter: blur(8px); }
+    .pop-card { background: #0f172a; padding: 35px; border-radius: 35px; text-align: center; max-width: 360px; width: 90%; border: 1px solid var(--glass-border); }
+    input, select { width: 100%; padding: 14px; border-radius: 12px; margin-bottom: 12px; background: #111; color: white; border: 1px solid var(--glass-border); }
+    #adminPanel { display: none; border: 1px solid var(--primary); padding: 25px; border-radius: 28px; margin-bottom: 30px; }
+    #restoreBtn { display: none; position: fixed; bottom: 100px; right: 20px; z-index: 1500; }
+    #successToast { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #22c55e; color: white; padding: 10px 25px; border-radius: 50px; z-index: 10000; }
+  </style>
 </head>
 <body>
 
-<div id="loadingOverlay" class="overlay" style="display:none;">
-    <div class="modal-card" style="max-width: 200px;">
-        <div class="loader"></div>
-        <h4 style="margin:0;">กำลังทำงาน...</h4>
+  <header class="nav-header">
+    <div class="brand" onclick="location.reload()">
+      <img src="Icon.png">
+      <div class="brand-text">NOTECAR</div>
     </div>
-</div>
+    <div class="nav-tools">
+      <div class="lang-switcher">
+        <button id="btnTH" class="lang-btn active" onclick="setLang('th')">TH</button>
+        <button id="btnEN" class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+      <div id="adminAuthBtn">
+          <button onclick="openLogin()" class="admin-icon-btn fingerprint-btn"><i class="fa-solid fa-fingerprint"></i></button>
+      </div>
+    </div>
+  </header>
 
-<div id="nameModal" class="overlay" style="display:none;">
-    <div class="modal-card">
-        <div style="font-size: 2rem; margin-bottom: 10px;">💬</div>
-        <h3 style="margin:0;">ระบุชื่อของคุณ</h3>
-        <p style="color:var(--muted); font-size: 0.85rem; margin: 10px 0 20px;">กรุณาใส่ชื่อเพื่อใช้ในการคอมเมนต์</p>
-        <input type="text" id="tempNameInput" placeholder="ใส่ชื่อเล่นหรือชื่อจริง...">
+  <div id="welcomeOverlay" class="modal-overlay" style="display: flex;">
+    <div class="pop-card animate__animated animate__zoomIn">
+      <img src="Icon.png" style="width:80px; height:80px; border-radius:20px; margin-bottom:15px; border:2px solid var(--primary);">
+      <h2 id="welTitle">ยินดีต้อนรับ</h2>
+      <p id="welSub">คัดรถสวย สภาพดี 🧡</p>
+      <button onclick="enterSite()" class="btn-texture btn-orange" style="width:100%;" id="startBtn">เข้าสู่ระบบ</button>
+    </div>
+  </div>
+
+  <button id="restoreBtn" onclick="openAdminPanel()" class="btn-texture btn-orange animate__animated animate__bounceIn">
+    <i class="fa-solid fa-plus"></i> <span id="txtRestore">เริ่มประกาศใหม่</span>
+  </button>
+
+  <div id="successToast" class="animate__animated">✓ สำเร็จ</div>
+
+  <div class="shell">
+    <div id="adminPanel" class="animate__animated">
+      <h4 id="txtAdminTitle" style="margin:0 0 15px 0; font-family:'Kanit';">ระบบจัดการสต็อก</h4>
+      <input type="text" id="carTitle" placeholder="รุ่นรถ">
+      <input type="text" id="carPrice" placeholder="ราคา">
+      <label for="carFile" style="display:block; padding:15px; border:2px dashed var(--glass-border); border-radius:15px; text-align:center; cursor:pointer; margin-bottom:12px;">
+        <i class="fa-solid fa-image"></i> <span id="txtUpload">อัปโหลดรูปภาพ</span>
+      </label>
+      <input type="file" id="carFile" accept="image/*" style="display:none" onchange="document.getElementById('txtUpload').innerText = this.files[0].name">
+      <select id="carStatus">
+        <option value="available" id="optAvail">🟢 มีสินค้า</option>
+        <option value="sold" id="optSold">🔴 ขายแล้ว</option>
+      </select>
+      <div style="display:flex; gap:10px;">
+        <button id="uploadBtn" class="btn-texture btn-orange" style="flex:2;" onclick="startUpload()">บันทึก</button>
+        <button onclick="cancelAdmin()" class="btn-texture btn-dark" style="flex:1;">ยกเลิก</button>
+      </div>
+    </div>
+
+    <div id="carList" class="grid"></div>
+
+    <div class="comment-area" style="margin-top:50px;">
+      <h3 id="txtComTitle" style="font-family:'Kanit';">ความคิดเห็น</h3>
+      <div id="commentDisplay"></div>
+      <div class="comment-input-box">
+        <input type="text" id="commentInput" placeholder="พิมพ์ข้อความ...">
+        <button onclick="handleComment()" class="btn-texture btn-orange" style="padding: 10px 15px; border-radius: 12px;"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loginModal" class="modal-overlay">
+    <div class="pop-card animate__animated animate__fadeInUp">
+      <h3><i class="fa-solid fa-fingerprint"></i> Admin Login</h3>
+      <input type="password" id="adminPass" placeholder="รหัสผ่าน" style="text-align:center;">
+      <div style="display:flex; gap:10px;">
+          <button onclick="checkLogin()" class="btn-texture btn-orange" style="flex:1;">ตกลง</button>
+          <button onclick="closeLogin()" class="btn-texture btn-dark" style="flex:1;">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-overlay">
+    <div class="pop-card animate__animated animate__zoomIn" style="border: 1px solid #ef4444;">
+        <div style="font-size: 3rem; color: #ef4444; margin-bottom: 15px;"><i class="fa-solid fa-circle-exclamation"></i></div>
+        <h3 id="confirmTitle">ยืนยันการลบ?</h3>
+        <p id="confirmSub">ไม่สามารถกู้คืนได้</p>
         <div style="display:flex; gap:10px;">
-            <button onclick="document.getElementById('nameModal').style.display='none'" style="flex:1; border:none; border-radius:12px; cursor:pointer;">ยกเลิก</button>
-            <button onclick="saveNameAndComment()" class="btn-post" style="flex:2;">ตกลon</button>
+            <button id="btnConfirmAction" class="btn-texture btn-red" style="flex:1;">ลบเลย</button>
+            <button onclick="closeConfirm()" class="btn-texture btn-dark" style="flex:1;">ยกเลิก</button>
         </div>
     </div>
-</div>
+  </div>
 
-<div id="adminModal" class="overlay" style="display:none;">
-    <div class="modal-card">
-        <h3 style="margin:0;">🔐 แอดมินล็อคอิน</h3>
-        <input type="password" id="adminPassInput" placeholder="รหัสผ่าน" style="text-align:center; letter-spacing:5px; margin-top:15px;">
-        <button onclick="checkAdminPass()" class="btn-post">เข้าสู่ระบบ</button>
-        <button onclick="document.getElementById('adminModal').style.display='none'" style="background:none; border:none; color:var(--muted); margin-top:10px; cursor:pointer;">ปิดหน้าต่าง</button>
-    </div>
-</div>
-
-<nav>
-    <div class="brand"><h1>🚗 CARNOTE ONLINE</h1></div>
-    <button onclick="handleAdmin()" style="border:none; background:none; color:var(--muted); cursor:pointer;">⚙️ แอดมิน</button>
-</nav>
-
-<div class="hero-banner">
-    <h2>CarNote Online</h2>
-    <p>Premium Quality Second Hand Cars 🧡</p>
-</div>
-
-<div class="container">
-    <div id="adminPanel" style="display:none; background:white; padding:20px; border-radius:20px; margin-bottom:20px;">
-        <h4 id="panelTitle">✨ ลงประกาศใหม่</h4>
-        <input type="text" id="carTitle" placeholder="ชื่อรถ / ปี">
-        <input type="text" id="carPrice" placeholder="ราคา">
-        <input type="file" id="carFile" accept="image/*">
-        <select id="carStatus">
-            <option value="available">🟢 พร้อมขาย</option>
-            <option value="sold">🔴 ขายแล้ว</option>
-        </select>
-        <button id="uploadBtn" class="btn-post" onclick="startUpload()">ลงประกาศทันที</button>
-    </div>
-
-    <div id="carList"></div>
-</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyANA3-UyKf-MS2dcmbAuPGt-KtRd0KTmGw",
-        authDomain: "note-communitycar.firebaseapp.com",
-        databaseURL: "https://note-communitycar-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "note-communitycar",
-        storageBucket: "note-communitycar.appspot.com",
-        messagingSenderId: "387457886547",
-        appId: "1:387457886547:web:d7e5f60fb7d2cdbf3ed9a6"
+  <script>
+    const translations = {
+      th: {
+        welTitle: "ยินดีต้อนรับเข้าสู่ NoteCar Online", welSub: "คัดรถสวย สภาพดี ราคาเป็นกันเอง 🧡", startBtn: "เข้าชมร้านค้า",
+        btnChat: "แชท", btnCall: "โทร", availTag: "ยังมีอยู่", soldTag: "ขายแล้ว",
+        txtAdminTitle: "⚙️ จัดการสต็อก", txtRestore: "เริ่มประกาศใหม่", txtUpload: "อัปโหลดรูปภาพ",
+        optAvail: "🟢 พร้อมขาย", optSold: "🔴 ขายแล้ว", uploadBtn: "บันทึกข้อมูล",
+        txtComTitle: "💬 ความคิดเห็น", commentInput: "พิมพ์ข้อความ...", confirmTitle: "ยืนยันการลบ?", confirmSub: "ข้อมูลจะถูกลบถาวร", btnConfirmAction: "ลบเลย", btnDel: "ลบ"
+      },
+      en: {
+        welTitle: "Welcome to NoteCar Online", welSub: "Premium cars at friendly prices 🧡", startBtn: "Enter Shop",
+        btnChat: "CHAT", btnCall: "CALL", availTag: "AVAILABLE", soldTag: "SOLD OUT",
+        txtAdminTitle: "⚙️ Stock Management", txtRestore: "Restart Post", txtUpload: "Upload Image",
+        optAvail: "🟢 Available", optSold: "🔴 Sold Out", uploadBtn: "Save Post",
+        txtComTitle: "💬 Comments", commentInput: "Write a comment...", confirmTitle: "Are you sure?", confirmSub: "Cannot be undone.", btnConfirmAction: "Delete Now", btnDel: "DEL"
+      }
     };
 
+    let currentLang = 'th', isAdmin = false, editMode = false, editKey = null, deletePath = null;
+    const firebaseConfig = { apiKey: "AIzaSyANA3-UyKf-MS2dcmbAuPGt-KtRd0KTmGw", databaseURL: "https://note-communitycar-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "note-communitycar" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const IMGBB_API_KEY = '5a3de96d3f6deddc05d65dc1928e466b';
 
-    let isAdmin = false, userDisplayName = "", currentCarId = "", editMode = false, editKey = null, existingImg = null;
-
-    function handleAdmin() {
-        if (!isAdmin) document.getElementById('adminModal').style.display = 'flex';
-        else { isAdmin = false; location.reload(); }
+    function setLang(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn' + lang.toUpperCase()).classList.add('active');
+      const t = translations[lang];
+      for (let id in t) {
+        let el = document.getElementById(id);
+        if (el && el.tagName !== "BUTTON") {
+            if (el.tagName === "INPUT") el.placeholder = t[id];
+            else if (el.tagName === "OPTION") el.text = t[id];
+            else el.innerText = t[id];
+        }
+      }
+      renderCars(); loadComments();
     }
 
-    function checkAdminPass() {
-        if (document.getElementById('adminPassInput').value === "Note#2026!Car@Phupha99") {
-            isAdmin = true;
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('adminModal').style.display = 'none';
-            renderCars();
-        } else alert("รหัสผ่านไม่ถูกต้อง");
+    function enterSite() { document.getElementById('welcomeOverlay').style.display = 'none'; }
+    function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+    function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+
+    function checkLogin() {
+      if(document.getElementById('adminPass').value === "Note#2026!Car@Phupha99") {
+        isAdmin = true;
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('adminAuthBtn').innerHTML = `<button onclick="logoutAdmin()" class="admin-icon-btn logout-btn"><i class="fa-solid fa-right-from-bracket"></i></button>`;
+        openAdminPanel();
+        loadComments(); renderCars();
+      } else alert("รหัสผ่านไม่ถูกต้อง");
     }
 
-    async function startUpload() {
-        const title = document.getElementById('carTitle').value;
-        const price = document.getElementById('carPrice').value;
-        const file = document.getElementById('carFile').files[0];
-        if(!title || !price) return alert("กรุณาใส่ข้อมูลให้ครบ");
+    function logoutAdmin() {
+        isAdmin = false;
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('restoreBtn').style.display = 'none';
+        document.getElementById('adminAuthBtn').innerHTML = `<button onclick="openLogin()" class="admin-icon-btn fingerprint-btn"><i class="fa-solid fa-fingerprint"></i></button>`;
+        loadComments(); renderCars();
+        showToast("Logged Out");
+    }
 
-        document.getElementById('loadingOverlay').style.display = 'flex';
+    function openAdminPanel() { document.getElementById('adminPanel').style.display = 'block'; document.getElementById('restoreBtn').style.display = 'none'; }
+    function cancelAdmin() { document.getElementById('adminPanel').style.display = 'none'; if(isAdmin) document.getElementById('restoreBtn').style.display = 'flex'; }
+
+    // ฟังก์ชันดูจังหวัดจาก IP (ip-api.com)
+    async function getProvince() {
         try {
-            let imgUrl = existingImg;
-            if (file) {
-                const fd = new FormData(); fd.append('image', file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {method:'POST', body:fd});
-                const d = await res.json(); imgUrl = d.data.url;
-            }
-            const carData = { title, price, img: imgUrl, status: document.getElementById('carStatus').value };
-            if(editMode) await db.ref(`cars/${editKey}`).update(carData);
-            else await db.ref('cars').push({...carData, time: Date.now()});
-            location.reload();
-        } catch (e) { alert("เกิดข้อผิดพลาด"); document.getElementById('loadingOverlay').style.display = 'none'; }
+            const res = await fetch('http://ip-api.com/json/?fields=status,regionName');
+            const data = await res.json();
+            return data.status === 'success' ? data.regionName : "Unknown";
+        } catch(e) { return "Unknown"; }
+    }
+
+    async function handleComment() {
+      const input = document.getElementById('commentInput');
+      if(!input.value) return;
+      let name = localStorage.getItem('noteCarUserName');
+      if(!name) {
+          name = prompt("กรุณาใส่ชื่อของคุณ / Please enter your name:");
+          if(!name) return;
+          localStorage.setItem('noteCarUserName', name);
+      }
+      const province = await getProvince();
+      db.ref('comments').push({ name, text: input.value, location: province, timestamp: Date.now() });
+      input.value = "";
     }
 
     function renderCars() {
-        db.ref('cars').on('value', snap => {
-            const list = document.getElementById('carList'); list.innerHTML = "";
-            const data = snap.val();
-            if(data) {
-                Object.keys(data).reverse().forEach(key => {
-                    const car = data[key];
-                    list.innerHTML += `
-                        <div class="car-card">
-                            <img src="${car.img}" class="car-img">
-                            <div class="details">
-                                <h2 style="margin:0;">${car.title}</h2>
-                                <div class="price">฿${car.price}</div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="https://m.me/note.notety.5" target="_blank" class="btn-contact btn-facebook"><i class="fa-brands fa-facebook-messenger"></i> แชท</a>
-                                    <a href="tel:0835255642" class="btn-contact btn-phone"><i class="fa-solid fa-phone"></i> โทร</a>
-                                </div>
-                                ${isAdmin ? `<div style="margin-top:10px; display:flex; gap:5px;">
-                                    <button onclick="editPost('${key}', '${car.title}', '${car.price}', '${car.status}', '${car.img}')" style="flex:1; padding:8px; border-radius:8px; border:none; background:#fef3c7; color:#92400e;">แก้ไข</button>
-                                    <button onclick="db.ref('cars/${key}').remove()" style="flex:1; padding:8px; border-radius:8px; border:none; background:#fee2e2; color:#991b1b;">ลบ</button>
-                                </div>` : ''}
-                            </div>
-                            <div class="comment-section">
-                                <div id="comments-${key}"></div>
-                                <div style="display:flex; gap:5px; margin-top:10px;">
-                                    <input type="text" id="text-${key}" placeholder="พิมพ์ข้อความ..." style="margin-bottom:0;">
-                                    <button onclick="triggerComment('${key}')" class="btn-post" style="width:50px; padding:0;"><i class="fa-solid fa-paper-plane"></i></button>
-                                </div>
-                            </div>
-                        </div>`;
-                    renderComments(key);
-                });
-            }
+      db.ref('cars').on('value', snap => {
+        const list = document.getElementById('carList'); list.innerHTML = "";
+        const data = snap.val(); const t = translations[currentLang];
+        if(data) Object.keys(data).reverse().forEach(key => {
+          const car = data[key];
+          list.innerHTML += `
+            <div class="car-card animate__animated animate__fadeIn">
+              <div class="status-tag" style="background:${car.status==='available'?'#16a34a':'#dc2626'}">${car.status==='available' ? t.availTag : t.soldTag}</div>
+              <img src="${car.img}" class="car-img">
+              <div style="padding:20px;">
+                <h3 style="color:white;">${car.title}</h3>
+                <div style="font-size:1.8rem; font-weight:800; color:var(--primary); margin:10px 0;">฿${car.price}</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                  <a href="https://m.me/note.notety.5" target="_blank" class="btn-texture btn-blue" style="text-decoration:none;">${t.btnChat}</a>
+                  <a href="tel:0835255642" class="btn-texture btn-dark" style="text-decoration:none;">${t.btnCall}</a>
+                </div>
+                ${isAdmin ? `<div style="display:flex; gap:8px; margin-top:12px;"><button onclick="editPost('${key}','${car.title}','${car.price}','${car.status}','${car.img}')" class="btn-texture btn-dark" style="flex:1;">EDIT</button><button onclick="triggerDelete('cars/${key}')" class="btn-texture btn-red" style="flex:1;">DEL</button></div>` : ''}
+              </div>
+            </div>`;
         });
+      });
     }
 
-    function renderComments(carId) {
-        db.ref(`cars/${carId}/comments`).on('value', snap => {
-            const div = document.getElementById(`comments-${carId}`); if(!div) return;
-            div.innerHTML = ""; const data = snap.val();
-            if(data) {
-                Object.keys(data).forEach(k => {
-                    div.innerHTML += `<div class="comment-item"><b>${data[k].name}:</b> ${data[k].text} ${isAdmin ? `<button onclick="db.ref('cars/${carId}/comments/${k}').remove()" style="float:right; border:none; background:none; color:red;">❌</button>` : ''}</div>`;
-                });
-            }
+    function loadComments() {
+      db.ref('comments').on('value', snap => {
+        const display = document.getElementById('commentDisplay'); display.innerHTML = "";
+        const data = snap.val(); const t = translations[currentLang];
+        if(data) Object.keys(data).reverse().forEach(key => {
+          const c = data[key];
+          display.innerHTML += `
+            <div class="comment-card animate__animated animate__fadeIn">
+              <div class="comment-user">@ ${c.name} <span class="comment-location"><i class="fa-solid fa-location-dot"></i> ${c.location}</span></div>
+              <div class="comment-msg">${c.text}</div>
+              <div class="comment-time">${new Date(c.timestamp).toLocaleString()}</div>
+              ${isAdmin ? `<button onclick="triggerDelete('comments/${key}')" style="position:absolute; top:15px; right:15px; background:#ef4444; color:white; border:none; border-radius:8px; padding:5px 12px; cursor:pointer;"><i class="fa-solid fa-trash"></i> ${t.btnDel}</button>` : ''}
+            </div>`;
         });
+      });
     }
 
-    function triggerComment(carId) {
-        currentCarId = carId;
-        if (!userDisplayName) document.getElementById('nameModal').style.display = 'flex';
-        else saveComment();
+    function triggerDelete(path) { deletePath = path; document.getElementById('confirmModal').style.display = 'flex'; }
+    function closeConfirm() { document.getElementById('confirmModal').style.display = 'none'; }
+    document.getElementById('btnConfirmAction').onclick = function() {
+        if(deletePath) db.ref(deletePath).remove().then(() => { closeConfirm(); showToast("Deleted"); });
     }
+    function showToast(m) { const t = document.getElementById('successToast'); t.innerText = m; t.style.display='block'; setTimeout(()=>t.style.display='none', 2000); }
 
-    function saveNameAndComment() {
-        const name = document.getElementById('tempNameInput').value;
-        if(!name) return alert("กรุณาใส่ชื่อ");
-        userDisplayName = name;
-        document.getElementById('nameModal').style.display = 'none';
-        saveComment();
-    }
-
-    function saveComment() {
-        const text = document.getElementById(`text-${currentCarId}`).value;
-        if(!text) return;
-        db.ref(`cars/${currentCarId}/comments`).push({ name: userDisplayName, text: text });
-        document.getElementById(`text-${currentCarId}`).value = "";
-    }
-
-    function editPost(key, title, price, status, img) {
-        editMode = true; editKey = key; existingImg = img;
-        document.getElementById('carTitle').value = title;
-        document.getElementById('carPrice').value = price;
-        document.getElementById('carStatus').value = status;
-        document.getElementById('panelTitle').innerText = "🔧 แก้ไขประกาศ";
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    }
-
-    renderCars();
-</script>
+    setLang('th');
+  </script>
 </body>
 </html>
